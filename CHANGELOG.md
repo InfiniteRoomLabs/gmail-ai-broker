@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README with the full one-time setup runbook (enable API, consent screen, Production-unverified publish to dodge the 7-day token expiry, Desktop client, `auth login`) and an honest security/threat-model section.
 - 33 unit tests (TDD) across MIME, audit, models, auth, config, client, and CLI.
 
+### Fixed
+- `run_installed_app_flow` return type: `flow.run_local_server` is typed as a union (`oauth2 | external_account`); narrow to the oauth2 `Credentials` an installed-app flow actually yields via `cast`.
+- Added `pyrightconfig.json` pointing at the uv `.venv` so pyright resolves `google.*`/`typer`/`pydantic` and actually type-checks lib usage (without it, unresolved imports silently disabled type-checking). Guarded a `creds.scopes` Optional in `test_auth.py`. `pyright`: 0 errors, 0 warnings.
+
 ### Security
 - Read-safe-by-default design: the only mail-transmitting command is an explicit `draft send --yes`; no delete/archive/bulk verbs in v1.
 - Audit log hashes call args rather than storing recipient/subject content verbatim.

@@ -56,4 +56,5 @@ def test_build_credentials_carries_refresh_fields():
     assert creds.refresh_token == "1//rt"
     assert creds.client_id == "cid.apps.googleusercontent.com"
     assert creds.token_uri == "https://oauth2.googleapis.com/token"
+    assert creds.scopes is not None
     assert set(creds.scopes) == set(GMAIL_SCOPES)

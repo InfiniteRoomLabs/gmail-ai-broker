@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import cast
 
 from google.oauth2.credentials import Credentials
 
@@ -68,9 +69,10 @@ def run_installed_app_flow(client_secrets_file: Path, scopes: list[str]) -> Cred
     from google_auth_oauthlib.flow import InstalledAppFlow
 
     flow = InstalledAppFlow.from_client_secrets_file(str(client_secrets_file), scopes)
-    return flow.run_local_server(
-        port=0, access_type="offline", prompt="consent"
-    )
+    creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
+    # run_local_server is typed as a union (oauth2 | external_account); an
+    # InstalledAppFlow always yields oauth2 user Credentials.
+    return cast(Credentials, creds)
 
 
 def build_credentials(

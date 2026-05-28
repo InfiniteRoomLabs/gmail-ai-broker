@@ -1,0 +1,38 @@
+[project]
+name = "gmail-ai-broker"
+version = "0.1.0"
+description = "Auditable CLI filling the gaps in the official Gmail connector (attachments, raw-MIME send, filter CRUD, raw fetch) for AI email-assistant use"
+readme = "README.md"
+authors = [
+    { name = "Wes Gilleland", email = "wes@infiniteroomlabs.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "google-api-python-client>=2.196.0",
+    "google-auth>=2.53.0",
+    "google-auth-httplib2>=0.4.0",
+    "google-auth-oauthlib>=1.4.0",
+    "pydantic>=2.13.4",
+    "rich>=15.0.0",
+    "structlog>=25.5.0",
+    "typer>=0.25.1",
+]
+
+[project.scripts]
+gmail-ai-broker = "gmail_ai_broker.cli.main:app"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-mock>=3.15.1",
+]
+# Phase 2 (deferred): a thin FastMCP stdio wrapper over client.py.
+# Intentionally NOT added yet -- it drags in uvicorn/starlette/websockets and
+# bloats the audit surface. Add `fastmcp` here when Phase 2 begins.
+
+[build-system]
+requires = ["uv_build>=0.10.3,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

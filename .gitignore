@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets / credentials -- NEVER commit. Token lives in ~/.secrets, origin in Bitwarden.
+*.token
+*refresh*token*
+client_secret*.json
+credentials*.json
+token*.json
+.secrets/
+*.pem
+
+# Local audit log + scratch
+audit*.jsonl
+*.local.toml

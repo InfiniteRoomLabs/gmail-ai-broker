@@ -30,11 +30,13 @@ app = typer.Typer(
     add_completion=False,
 )
 
+auth_app = typer.Typer(help="One-time OAuth setup (loopback consent).", no_args_is_help=True)
 attachment_app = typer.Typer(help="Download message attachments.", no_args_is_help=True)
 message_app = typer.Typer(help="Fetch raw message MIME.", no_args_is_help=True)
 draft_app = typer.Typer(help="Create drafts and (explicitly) send them.", no_args_is_help=True)
 filter_app = typer.Typer(help="Gmail filter CRUD (requires gmail.settings.basic).", no_args_is_help=True)
 
+app.add_typer(auth_app, name="auth")
 app.add_typer(attachment_app, name="attachment")
 app.add_typer(message_app, name="message")
 app.add_typer(draft_app, name="draft")
@@ -62,6 +64,59 @@ def _main() -> None:
 def version() -> None:
     """Print the installed version."""
     typer.echo(__version__)
+
+
+# ----- auth (one-time setup) ------------------------------------------------
+
+
+@auth_app.command("login")
+def auth_login(
+    client_secrets: Path = typer.Option(
+        ..., "--client-secrets", help="Path to the Desktop OAuth client JSON from Google Cloud Console."
+    ),
+    config: Optional[Path] = ConfigOpt,
+) -> None:
+    """Run the loopback consent flow and save the refresh token (mode 600)."""
+    from gmail_ai_broker.auth import (
+        GMAIL_SCOPES,
+        run_installed_app_flow,
+        save_refresh_token,
+    )
+    from gmail_ai_broker.config import DEFAULT_CONFIG_PATH, DEFAULT_REFRESH_TOKEN_PATH, Config
+
+    try:
+        token_path = Config.load(config or DEFAULT_CONFIG_PATH).refresh_token_path
+    except RuntimeError:
+        token_path = DEFAULT_REFRESH_TOKEN_PATH
+
+    creds = run_installed_app_flow(client_secrets, GMAIL_SCOPES)
+    if not creds.refresh_token:
+        typer.echo(
+            "no refresh token returned -- revoke prior access and retry "
+            "(the flow forces prompt=consent; ensure the app is in Production).",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    save_refresh_token(creds.refresh_token, token_path)
+    typer.echo(f"saved refresh token to {token_path} (mode 600). Back it up in Bitwarden.")
+
+
+@auth_app.command("status")
+def auth_status(config: Optional[Path] = ConfigOpt) -> None:
+    """Report whether config + refresh token exist (no network)."""
+    from gmail_ai_broker.config import DEFAULT_CONFIG_PATH, Config
+
+    cfg_path = config or DEFAULT_CONFIG_PATH
+    if not Path(cfg_path).exists():
+        typer.echo(f"config: MISSING ({cfg_path})")
+        raise typer.Exit(code=1)
+    cfg = Config.load(cfg_path)
+    typer.echo(f"config: ok ({cfg_path})")
+    typer.echo(
+        f"refresh token: {'ok' if cfg.refresh_token_path.exists() else 'MISSING'} "
+        f"({cfg.refresh_token_path})"
+    )
+    typer.echo(f"audit log: {cfg.audit_log_path}")
 
 
 # ----- attachment -----------------------------------------------------------

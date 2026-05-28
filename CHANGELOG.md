@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Append-only JSONL audit log for every mutation (`audit.py`).
 - TOML config loading with path defaults (`config.py`); `GmailBroker.from_config` wiring.
 - Typer CLI exposing `attachment`, `message`, `draft`, and `filter` command groups.
-- 32 unit tests (TDD) across MIME, audit, models, auth, config, client, and CLI.
+- `auth login` (loopback OAuth consent -> refresh token saved mode-600) and `auth status` commands; `save_refresh_token` + `run_installed_app_flow` in `auth.py`.
+- README with the full one-time setup runbook (enable API, consent screen, Production-unverified publish to dodge the 7-day token expiry, Desktop client, `auth login`) and an honest security/threat-model section.
+- 33 unit tests (TDD) across MIME, audit, models, auth, config, client, and CLI.
 
 ### Security
 - Read-safe-by-default design: the only mail-transmitting command is an explicit `draft send --yes`; no delete/archive/bulk verbs in v1.

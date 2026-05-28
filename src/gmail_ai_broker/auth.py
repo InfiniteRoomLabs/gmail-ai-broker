@@ -12,6 +12,7 @@ refresh token is the crown jewel.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from google.oauth2.credentials import Credentials
@@ -41,6 +42,35 @@ def load_refresh_token(path: Path) -> str:
     if not token:
         raise RuntimeError(f"Gmail refresh token file {path} is empty.")
     return token
+
+
+def save_refresh_token(token: str, path: Path) -> None:
+    """Write the refresh token to a mode-600 file, creating parents as needed.
+
+    Mode 600 (owner read/write only) is the file-level containment for the
+    crown-jewel credential.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # Create with restrictive perms from the start (avoid a brief world-readable window).
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        fh.write(token)
+    os.chmod(path, 0o600)
+
+
+def run_installed_app_flow(client_secrets_file: Path, scopes: list[str]) -> Credentials:
+    """Drive the Desktop/installed-app loopback consent flow (interactive).
+
+    Network + browser glue, exercised during setup (Gate 1), not unit-tested.
+    Forces offline access + a consent prompt so Google returns a refresh token.
+    """
+    from google_auth_oauthlib.flow import InstalledAppFlow
+
+    flow = InstalledAppFlow.from_client_secrets_file(str(client_secrets_file), scopes)
+    return flow.run_local_server(
+        port=0, access_type="offline", prompt="consent"
+    )
 
 
 def build_credentials(

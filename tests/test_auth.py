@@ -8,7 +8,12 @@ from __future__ import annotations
 
 import pytest
 
-from gmail_ai_broker.auth import GMAIL_SCOPES, build_credentials, load_refresh_token
+from gmail_ai_broker.auth import (
+    GMAIL_SCOPES,
+    build_credentials,
+    load_refresh_token,
+    save_refresh_token,
+)
 
 
 def test_load_refresh_token_strips_whitespace(tmp_path):
@@ -28,6 +33,17 @@ def test_scopes_are_modify_and_settings_basic():
         "https://www.googleapis.com/auth/gmail.modify",
         "https://www.googleapis.com/auth/gmail.settings.basic",
     }
+
+
+def test_save_refresh_token_writes_mode_600(tmp_path):
+    import stat
+
+    dest = tmp_path / "secrets" / ".gmail-refresh-token"
+    save_refresh_token("1//new-token", dest)
+    assert dest.read_text() == "1//new-token"
+    # Owner-only read/write; no group/other access.
+    mode = stat.S_IMODE(dest.stat().st_mode)
+    assert mode == 0o600
 
 
 def test_build_credentials_carries_refresh_fields():

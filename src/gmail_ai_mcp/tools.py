@@ -19,13 +19,17 @@ def tool_download_attachment(
     broker: Any, message_id: str, attachment_id: str, out: str
 ) -> dict:
     data = broker.download_attachment(message_id, attachment_id)
-    Path(out).write_bytes(data)
+    path = Path(out)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
     return {"path": out, "bytes_written": len(data)}
 
 
 def tool_get_raw_message(broker: Any, message_id: str, out: str) -> dict:
     data = broker.get_raw_message(message_id)
-    Path(out).write_bytes(data)
+    path = Path(out)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
     return {"path": out, "bytes_written": len(data)}
 
 

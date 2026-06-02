@@ -10,6 +10,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import ValidationError
 
 from gmail_ai_broker.models import FilterSpec
 from gmail_ai_mcp import tools
@@ -27,6 +28,18 @@ def test_download_attachment_writes_file_and_returns_summary(tmp_path):
     broker.download_attachment.assert_called_once_with("m1", "att1")
 
 
+def test_download_attachment_creates_missing_parent_dirs(tmp_path):
+    broker = MagicMock()
+    broker.download_attachment.return_value = b"PDF-bytes"
+    out = tmp_path / "sub" / "form.pdf"
+
+    result = tools.tool_download_attachment(broker, "m1", "att1", str(out))
+
+    assert out.exists()
+    assert out.read_bytes() == b"PDF-bytes"
+    assert result == {"path": str(out), "bytes_written": 9}
+
+
 def test_get_raw_message_writes_file_and_returns_summary(tmp_path):
     broker = MagicMock()
     broker.get_raw_message.return_value = b"From: a@b.com\r\n\r\nhi"
@@ -39,20 +52,21 @@ def test_get_raw_message_writes_file_and_returns_summary(tmp_path):
     broker.get_raw_message.assert_called_once_with("m9")
 
 
-def test_list_filters_passes_through(tmp_path):
+def test_list_filters_passes_through():
     broker = MagicMock()
     broker.list_filters.return_value = [{"id": "f1"}, {"id": "f2"}]
     assert tools.tool_list_filters(broker) == [{"id": "f1"}, {"id": "f2"}]
+    broker.list_filters.assert_called_once_with()
 
 
-def test_get_filter_passes_through(tmp_path):
+def test_get_filter_passes_through():
     broker = MagicMock()
     broker.get_filter.return_value = {"id": "f1"}
     assert tools.tool_get_filter(broker, "f1") == {"id": "f1"}
     broker.get_filter.assert_called_once_with("f1")
 
 
-def test_create_draft_passes_all_args(tmp_path):
+def test_create_draft_passes_all_args():
     broker = MagicMock()
     broker.create_draft.return_value = {"id": "d1"}
 
@@ -77,7 +91,7 @@ def test_create_draft_passes_all_args(tmp_path):
     )
 
 
-def test_create_filter_validates_dict_into_filterspec(tmp_path):
+def test_create_filter_validates_dict_into_filterspec():
     broker = MagicMock()
     broker.create_filter.return_value = {"id": "f99"}
 
@@ -94,14 +108,14 @@ def test_create_filter_validates_dict_into_filterspec(tmp_path):
     }
 
 
-def test_create_filter_rejects_empty_spec(tmp_path):
+def test_create_filter_rejects_empty_spec():
     broker = MagicMock()
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         tools.tool_create_filter(broker, {"criteria": {}, "action": {}})
     broker.create_filter.assert_not_called()
 
 
-def test_delete_filter_returns_confirmation(tmp_path):
+def test_delete_filter_returns_confirmation():
     broker = MagicMock()
     broker.delete_filter.return_value = None
     assert tools.tool_delete_filter(broker, "f99") == {"deleted": "f99"}

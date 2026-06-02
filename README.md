@@ -179,8 +179,8 @@ cli/main.py typer entrypoint
 
 ## MCP server
 
-A stdio FastMCP server (`gmail-ai-mcp`) exposes the four capabilities as native
-MCP tools alongside the official connector. It exposes seven tools --
+A stdio FastMCP server (`gmail-ai-mcp`) exposes the broker's capabilities as
+native MCP tools alongside the official connector. It exposes seven tools --
 `download_attachment`, `get_raw_message`, `list_filters`, `get_filter`,
 `create_draft`, `create_filter`, `delete_filter` -- and **deliberately omits
 `send_draft`**: transmitting mail stays a terminal-only `draft send --yes` act.

@@ -177,9 +177,25 @@ service.py  googleapiclient discovery build                    [glue]
 cli/main.py typer entrypoint
 ```
 
-## Phase 2 (deferred)
+## MCP server
 
-A thin FastMCP stdio wrapper over `client.py` (`src/gmail_ai_mcp/server.py`) so
-Claude can call these as native MCP tools alongside the official connector.
-Deliberately not built yet -- it drags in a large dependency tree (uvicorn,
-starlette, websockets) that would bloat the audit surface.
+A stdio FastMCP server (`gmail-ai-mcp`) exposes the broker's capabilities as
+native MCP tools alongside the official connector. It exposes seven tools --
+`download_attachment`, `get_raw_message`, `list_filters`, `get_filter`,
+`create_draft`, `create_filter`, `delete_filter` -- and **deliberately omits
+`send_draft`**: transmitting mail stays a terminal-only `draft send --yes` act.
+
+Binary reads (`download_attachment`, `get_raw_message`) write bytes to an
+agent-supplied `out` path and return `{path, bytes_written}`; raw email bytes
+never enter the model context.
+
+Register it with your MCP host, e.g.:
+
+```bash
+claude mcp add --scope user gmail-ai-broker \
+  uv run --directory /abs/path/to/gmail-ai-broker gmail-ai-mcp
+```
+
+Config is loaded exactly like the CLI (XDG default), or point at a specific
+config with the `GMAIL_AI_BROKER_CONFIG` environment variable in the launch
+command. Complete the one-time setup runbook above before registering.

@@ -52,6 +52,15 @@ def test_get_raw_message_writes_file_and_returns_summary(tmp_path):
     broker.get_raw_message.assert_called_once_with("m9")
 
 
+def test_get_raw_message_creates_missing_parent_dirs(tmp_path):
+    broker = MagicMock()
+    broker.get_raw_message.return_value = b"data"
+    out = tmp_path / "sub" / "msg.eml"
+    result = tools.tool_get_raw_message(broker, "m1", str(out))
+    assert out.exists()
+    assert result == {"path": str(out), "bytes_written": 4}
+
+
 def test_list_filters_passes_through():
     broker = MagicMock()
     broker.list_filters.return_value = [{"id": "f1"}, {"id": "f2"}]

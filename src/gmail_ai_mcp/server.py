@@ -10,30 +10,47 @@ the XDG default.
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Annotated
 
 from fastmcp import FastMCP
+from pydantic import Field
 
 from gmail_ai_mcp import tools
 
+if TYPE_CHECKING:
+    from gmail_ai_broker.client import GmailBroker
+
 mcp = FastMCP("gmail-ai-broker")
 
-_broker: Any = None
+_broker: "GmailBroker | None" = None
+_broker_lock = threading.Lock()
 
 
-def _get_broker() -> Any:
+def _get_broker() -> "GmailBroker":
     global _broker
     if _broker is None:
-        from gmail_ai_broker.client import GmailBroker
+        with _broker_lock:
+            if _broker is None:
+                from gmail_ai_broker.client import GmailBroker
 
-        cfg = os.environ.get("GMAIL_AI_BROKER_CONFIG")
-        _broker = GmailBroker.from_config(Path(cfg) if cfg else None)
+                cfg = os.environ.get("GMAIL_AI_BROKER_CONFIG")
+                _broker = GmailBroker.from_config(Path(cfg) if cfg else None)
     return _broker
 
 
 @mcp.tool
-def download_attachment(message_id: str, attachment_id: str, out: str) -> dict:
+def download_attachment(
+    message_id: str,
+    attachment_id: str,
+    out: Annotated[
+        str,
+        Field(
+            description="Local file path to write the bytes to; parent dirs are created if missing."
+        ),
+    ],
+) -> dict:
     """Download a message attachment to a local file path.
 
     Writes the attachment bytes to ``out`` and returns {path, bytes_written}.
@@ -43,7 +60,15 @@ def download_attachment(message_id: str, attachment_id: str, out: str) -> dict:
 
 
 @mcp.tool
-def get_raw_message(message_id: str, out: str) -> dict:
+def get_raw_message(
+    message_id: str,
+    out: Annotated[
+        str,
+        Field(
+            description="Local file path to write the bytes to; parent dirs are created if missing."
+        ),
+    ],
+) -> dict:
     """Fetch a message's full raw RFC822 MIME to a local file path.
 
     Writes the raw bytes to ``out`` and returns {path, bytes_written}.

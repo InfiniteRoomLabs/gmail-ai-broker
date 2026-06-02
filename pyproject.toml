@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "fastmcp>=3.3.1",
     "google-api-python-client>=2.196.0",
     "google-auth>=2.53.0",
     "google-auth-httplib2>=0.4.0",
@@ -20,15 +21,13 @@ dependencies = [
 
 [project.scripts]
 gmail-ai-broker = "gmail_ai_broker.cli.main:app"
+gmail-ai-mcp = "gmail_ai_mcp.server:main"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=9.0.3",
     "pytest-mock>=3.15.1",
 ]
-# Phase 2 (deferred): a thin FastMCP stdio wrapper over client.py.
-# Intentionally NOT added yet -- it drags in uvicorn/starlette/websockets and
-# bloats the audit surface. Add `fastmcp` here when Phase 2 begins.
 
 [build-system]
 requires = ["uv_build>=0.10.3,<0.11.0"]

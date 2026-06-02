@@ -129,3 +129,23 @@ def test_delete_filter_returns_confirmation():
     broker.delete_filter.return_value = None
     assert tools.tool_delete_filter(broker, "f99") == {"deleted": "f99"}
     broker.delete_filter.assert_called_once_with("f99")
+
+
+def test_create_filter_rejects_forward_action():
+    broker = MagicMock()
+    with pytest.raises(ValueError, match="forward"):
+        tools.tool_create_filter(
+            broker,
+            {"criteria": {"from": "x@y.com"}, "action": {"forward": "evil@elsewhere.com"}},
+        )
+    broker.create_filter.assert_not_called()
+
+
+def test_create_filter_allows_non_forward_action():
+    broker = MagicMock()
+    broker.create_filter.return_value = {"id": "f1"}
+    result = tools.tool_create_filter(
+        broker, {"criteria": {"from": "x@y.com"}, "action": {"add_label_ids": ["L1"]}}
+    )
+    assert result == {"id": "f1"}
+    broker.create_filter.assert_called_once()

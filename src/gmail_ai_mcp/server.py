@@ -118,7 +118,8 @@ def create_filter(spec: dict) -> dict:
     """Create a Gmail filter from a declarative spec object.
 
     ``spec`` is {criteria: {...}, action: {...}} (snake_case keys, e.g.
-    add_label_ids). Validated before submission.
+    add_label_ids). Validated before submission. ``forward`` actions are
+    rejected over MCP -- create forwarding filters with the CLI instead.
     """
     return tools.tool_create_filter(_get_broker(), spec)
 

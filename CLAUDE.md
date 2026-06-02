@@ -90,4 +90,7 @@ It exposes seven tools and **never** `send_draft` -- the same one-transmit-path
 invariant as the CLI, guarded structurally by `tests/test_mcp_server.py`. Any
 new broker capability that should be reachable over MCP needs: a `tool_*` helper
 in `tools.py` (with a test), a typed `@mcp.tool` wrapper in `server.py`, and an
-entry in `EXPECTED_TOOLS`. Never add a send/transmit wrapper.
+entry in `EXPECTED_TOOLS`. Never add a send/transmit wrapper. Additionally,
+`create_filter` rejects `forward` actions at the MCP layer (the broker and CLI
+still support forward) so the MCP server enables zero outbound mail flow --
+gated or not.

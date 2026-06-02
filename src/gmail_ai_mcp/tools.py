@@ -62,7 +62,13 @@ def tool_create_draft(
 
 
 def tool_create_filter(broker: Any, spec: dict) -> dict:
-    return broker.create_filter(FilterSpec.model_validate(spec))
+    validated = FilterSpec.model_validate(spec)
+    if validated.action.forward is not None:
+        raise ValueError(
+            "forward actions are not allowed over MCP (the MCP server enables no "
+            "outbound mail flow); create forwarding filters with the CLI instead."
+        )
+    return broker.create_filter(validated)
 
 
 def tool_delete_filter(broker: Any, filter_id: str) -> dict:

@@ -128,6 +128,11 @@ collide with this server's verb set, so no prefix is needed.
 ## Invariants preserved
 
 - **One transmit path.** No `send_draft` tool; the server cannot send mail.
+- **No outbound flow -- gated or not.** `create_filter` rejects `forward`
+  actions at the MCP tool layer (in `tools.py`), before the broker is called.
+  The broker and CLI still support forward filters; only the MCP path is
+  restricted. This mirrors the `send_draft` omission: the server enables zero
+  outbound mail flow, even via Gmail's pre-verified-address forward gate.
 - **Audit on every mutation.** Audit records still fire inside `client.py`
   (`draft.create`, `filter.create`, `filter.delete`). The server adds none and
   removes none.

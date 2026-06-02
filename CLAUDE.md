@@ -79,9 +79,15 @@ in the Google stack.
 - New filter capability flows through `FilterSpec` in `models.py` (declarative
   spec -> resource), not ad-hoc dicts in the client.
 
-## Phase 2 (deferred)
+## MCP server (Phase 2, built)
 
-A thin FastMCP stdio wrapper over `client.py` (`src/gmail_ai_mcp/server.py`) is
-planned but **deliberately not built** -- it drags in uvicorn/starlette/
-websockets and bloats the audit surface. Add `fastmcp` to the deps and build it
-only when Phase 2 begins.
+`src/gmail_ai_mcp/` is a stdio FastMCP server over `client.py`. `tools.py` holds
+the testable broker-mapping helpers (unit-tested in `tests/test_mcp_tools.py`);
+`server.py` holds the FastMCP wrappers + `main()` (glue). `fastmcp` is a core
+dependency (chosen for an all-in-one install, despite the audit-surface cost).
+
+It exposes seven tools and **never** `send_draft` -- the same one-transmit-path
+invariant as the CLI, guarded structurally by `tests/test_mcp_server.py`. Any
+new broker capability that should be reachable over MCP needs: a `tool_*` helper
+in `tools.py` (with a test), a typed `@mcp.tool` wrapper in `server.py`, and an
+entry in `EXPECTED_TOOLS`. Never add a send/transmit wrapper.

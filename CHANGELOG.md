@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- MIT `LICENSE` and matching `license` field in `pyproject.toml` for the public GitHub release.
 - Project scaffold: uv package (src layout), typer CLI entrypoint, locked dependencies.
 - Hardened `.gitignore` blocking tokens, OAuth client secrets, and audit logs from version control.
 - OAuth token loading (`auth.py`) and credential construction for `gmail.modify` + `gmail.settings.basic`.

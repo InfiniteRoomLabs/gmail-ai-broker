@@ -3,6 +3,7 @@ name = "gmail-ai-broker"
 version = "0.1.0"
 description = "Auditable CLI filling the gaps in the official Gmail connector (attachments, raw-MIME send, filter CRUD, raw fetch) for AI email-assistant use"
 readme = "README.md"
+license = { file = "LICENSE" }
 authors = [
     { name = "Wes Gilleland", email = "wes@infiniteroomlabs.com" },
 ]

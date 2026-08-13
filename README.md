@@ -22,8 +22,8 @@ auditability is the trust model.
 - **The token is the crown jewel.** Auth is OAuth; the agent never holds a
   durable credential. A refresh token lives in a mode-600 file
   (`~/.secrets/.gmail-refresh-token`), and google-auth exchanges it for a
-  short-lived access token per call. Back the token up in Bitwarden
-  (`your password manager`).
+  short-lived access token per call. Back the token up in your password
+  manager.
 - **Scopes are mailbox-wide.** This tool requests `gmail.modify` +
   `gmail.settings.basic`. **There is no per-label OAuth scoping in Gmail** --
   `gmail.modify` legally grants whole-mailbox read/write. Any "only touch label
@@ -45,7 +45,7 @@ auditability is the trust model.
 uv sync                      # runtime deps
 uv sync --extra dev          # + pytest
 uv run gmail-ai-broker --help
-uv run --extra dev pytest -q # 33 tests
+uv run --extra dev pytest -q # full suite
 ```
 
 ## One-time setup runbook
@@ -56,8 +56,7 @@ client.
 
 ### 1. Enable the Gmail API ($0)
 
-Either apply the Terraform leaf in the infra repo
-(`<your-infra-repo>`), or run:
+In any Google Cloud project you own (create one free if needed):
 
 ```bash
 gcloud services enable gmail.googleapis.com --project <your-project-id>
@@ -105,8 +104,8 @@ uv run gmail-ai-broker auth login --client-secrets ~/Downloads/client_secret_XXX
 ```
 
 A browser opens; approve the two scopes. The refresh token is written to
-`~/.secrets/.gmail-refresh-token` (mode 600). **Back it up in Bitwarden** under
-`your password manager`.
+`~/.secrets/.gmail-refresh-token` (mode 600). **Back it up** in your password
+manager.
 
 Verify:
 

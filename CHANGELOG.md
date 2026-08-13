@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- GitHub Actions CI workflow running the test suite on push/PR.
 - MIT `LICENSE` and matching `license` field in `pyproject.toml` for the public GitHub release.
 - Project scaffold: uv package (src layout), typer CLI entrypoint, locked dependencies.
 - Hardened `.gitignore` blocking tokens, OAuth client secrets, and audit logs from version control.
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 49 unit tests total (TDD); added MCP tool-helper and server tests.
 
 ### Changed
+- README genericized for public release: setup placeholders instead of operator-specific project/vault references, generic example addresses, stale test count dropped.
 - README "Phase 2 (deferred)" section replaced with built-MCP-server usage + registration instructions.
 
 ### Fixed
